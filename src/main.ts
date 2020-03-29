@@ -26,17 +26,17 @@ async function main() {
 
         let creds = core.getInput('creds', { required: true });
         let secrets = new SecretParser(creds, FormatType.JSON);
-        let servicePrincipalId = secrets.getSecret("$.clientId", false);
+        let servicePrincipalId = secrets.getSecret("$.clientId", true);
         let servicePrincipalKey = secrets.getSecret("$.clientSecret", true);
-        let tenantId = secrets.getSecret("$.tenantId", false);
-        let subscriptionId = secrets.getSecret("$.subscriptionId", false);
+        let tenantId = secrets.getSecret("$.tenantId", true);
+        let subscriptionId = secrets.getSecret("$.subscriptionId", true);
         const enablePSSession = core.getInput('enable-PSSession').toLowerCase() === "true";
         if (!servicePrincipalId || !servicePrincipalKey || !tenantId || !subscriptionId) {
             throw new Error("Not all values are present in the creds object. Ensure clientId, clientSecret, tenantId and subscriptionId are supplied.");
         }
         // Attempting Az cli login
-        await executeAzCliCommand(`login --service-principal -u "${servicePrincipalId}" -p "${servicePrincipalKey}" --tenant "${tenantId}"`);
-        await executeAzCliCommand(`account set --subscription "${subscriptionId}"`);
+        await executeAzCliCommand(`login --service-principal -u "${servicePrincipalId}" -p "${servicePrincipalKey}" --tenant "${tenantId}" --output none`);
+        await executeAzCliCommand(`account set --subscription "${subscriptionId}" --output none`);
         isAzCLISuccess = true;
         if (enablePSSession) {
             // Attempting Az PS login
